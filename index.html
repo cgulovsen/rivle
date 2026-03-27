@@ -8,16 +8,30 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,sans-serif;background:#f8f7f4;color:#1a1a1a;min-height:100vh}
-.wrap{padding:1.5rem 1rem 3rem;display:flex;flex-direction:column;align-items:center}
+.wrap{padding:1rem 1rem 3rem;display:flex;flex-direction:column;align-items:center}
 h1{font-size:2.4rem;font-weight:600;letter-spacing:-1px;text-align:center}
-.tagline{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#888;text-align:center;margin-top:3px;margin-bottom:1.4rem}
-.layout{display:flex;gap:20px;width:100%;max-width:1050px;align-items:flex-start;flex-wrap:wrap}
+.tagline{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#888;text-align:center;margin-top:3px;margin-bottom:1.2rem}
+
+/* Desktop: side by side, globe on right */
+.layout{display:flex;flex-direction:row;gap:20px;width:100%;max-width:1050px;align-items:flex-start}
 .left-col{flex:0 0 270px;min-width:240px;display:flex;flex-direction:column;gap:10px}
-.globe-col{flex:1 1 520px;min-width:340px}
+.globe-col{flex:1 1 520px;min-width:300px}
+
+/* Mobile: stack vertically, globe first */
+@media(max-width:640px){
+  .wrap{padding:.75rem .75rem 2rem}
+  h1{font-size:2rem}
+  .layout{flex-direction:column;gap:12px}
+  .left-col{width:100%;flex:none;order:2}
+  .globe-col{width:100%;flex:none;order:1}
+}
+
 .globe-outer{position:relative;aspect-ratio:1}
-#globe-canvas{display:block;width:100%;height:100%;cursor:grab;border-radius:50%}
+#globe-canvas{display:block;width:100%;height:100%;cursor:grab;border-radius:50%;touch-action:none}
 #globe-canvas:active{cursor:grabbing}
-.globe-hint{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:10px;color:#aaa;white-space:nowrap;pointer-events:none}
+.globe-hint{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:#aaa;white-space:nowrap;pointer-events:none}
+@media(max-width:640px){.globe-hint{font-size:9px;bottom:-18px}}
+
 .card{background:#fff;border:1px solid #e8e4dc;border-radius:12px;padding:12px 14px}
 .clue-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #f0ece4;font-size:13px}
 .clue-row:last-child{border-bottom:none}
@@ -25,24 +39,36 @@ h1{font-size:2.4rem;font-weight:600;letter-spacing:-1px;text-align:center}
 .clue-val{font-weight:600;color:#1a1a1a;font-size:13px;text-align:right}
 .clue-val.good{color:#16a34a}
 .clue-val.bad{color:#dc2626}
+
 .input-row{display:flex;gap:8px;position:relative}
 #guess-input{flex:1;height:42px;border-radius:8px;border:1px solid #d0ccc4;background:#fff;color:#1a1a1a;padding:0 12px;font-size:14px;outline:none;font-family:inherit}
 #guess-input:focus{border-color:#888}
 #guess-btn{height:42px;padding:0 16px;border-radius:8px;border:1px solid #d0ccc4;background:#fff;color:#1a1a1a;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #guess-btn:hover{background:#f0ece4}
+@media(max-width:640px){
+  #guess-input{height:46px;font-size:16px} /* 16px prevents iOS zoom */
+  #guess-btn{height:46px;padding:0 14px}
+}
+
 .ac-list{position:absolute;top:46px;left:0;right:62px;background:#fff;border:1px solid #d0ccc4;border-radius:8px;z-index:99;overflow:hidden;max-height:240px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+@media(max-width:640px){.ac-list{top:50px;right:68px;max-height:180px}}
 .ac-item{padding:9px 12px;font-size:13px;cursor:pointer;color:#1a1a1a;border-bottom:1px solid #f0ece4;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .ac-item:last-child{border-bottom:none}
 .ac-item:hover,.ac-item.sel{background:#f8f7f4}
 .ac-badge{font-size:10px;color:#999;border:1px solid #e0dbd2;border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0}
+
 .err{font-size:12px;color:#dc2626;min-height:16px}
 .counter-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#aaa}
 .give-up{background:none;border:none;font-size:12px;color:#bbb;cursor:pointer;text-decoration:underline;font-family:inherit}
 .give-up:hover{color:#888}
+
 .legend{display:flex;align-items:center;gap:8px}
 .legend-bar{flex:1;height:7px;border-radius:4px;background:linear-gradient(to right,#B5D4F4,#85B7EB,#378ADD,#185FA5,#042C53)}
 .legend-lbl{font-size:10px;color:#aaa;white-space:nowrap}
+
 .guess-list{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto}
+@media(max-width:640px){.guess-list{max-height:none}} /* let it grow naturally on mobile */
+
 .guess-card{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:1px solid #e8e4dc;animation:slideIn .22s ease;background:#fff}
 @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .g-dot{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
@@ -50,6 +76,7 @@ h1{font-size:2.4rem;font-weight:600;letter-spacing:-1px;text-align:center}
 .g-right{font-size:12px;text-align:right}
 .g-mi{color:#555}
 .g-label{font-size:11px;font-weight:600}
+
 .banner{border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:4px;border:1px solid}
 .banner h2{font-size:1.25rem;font-weight:600;margin-bottom:4px}
 .banner p{font-size:12px;margin-top:2px}
@@ -59,11 +86,28 @@ h1{font-size:2.4rem;font-weight:600;letter-spacing:-1px;text-align:center}
 .banner.lost h2,.banner.lost p{color:#b91c1c}
 .new-btn{margin-top:10px;height:36px;padding:0 18px;border-radius:8px;border:1px solid #d0ccc4;background:#fff;color:#1a1a1a;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
 .new-btn:hover{background:#f0ece4}
+
+/* Tooltip — fixed on desktop, tap-dismissable sheet on mobile */
 #tt{position:fixed;z-index:99999;background:#fff;border:1px solid #d0ccc4;border-radius:8px;padding:10px 13px;font-size:12px;line-height:1.7;pointer-events:none;width:240px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.1);font-family:system-ui,sans-serif;color:#1a1a1a}
-.tt-name{font-size:13px;font-weight:700;padding-bottom:5px;margin-bottom:5px;border-bottom:1px solid #f0ece4}
-.tt-row{display:flex;justify-content:space-between;gap:8px}
+@media(max-width:640px){
+  #tt{
+    position:fixed;bottom:0;left:0;right:0;width:100%;border-radius:12px 12px 0 0;
+    border-bottom:none;padding:16px 16px 28px;
+    pointer-events:auto; /* tappable to dismiss */
+    box-shadow:0 -4px 20px rgba(0,0,0,.15);
+    max-height:55vh;overflow-y:auto;
+  }
+  #tt-dismiss{display:block}
+}
+#tt-dismiss{display:none;position:absolute;top:10px;right:14px;background:none;border:none;font-size:22px;color:#aaa;cursor:pointer;line-height:1;padding:0}
+.tt-name{font-size:14px;font-weight:700;padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid #f0ece4;padding-right:28px}
+.tt-row{display:flex;justify-content:space-between;gap:8px;padding:2px 0}
 .tt-k{color:#aaa}
 .tt-v{color:#444;font-weight:600;text-align:right;max-width:155px}
+
+/* Tap-to-info hint on mobile, replaces hover hint */
+.tap-hint{display:none;font-size:11px;color:#aaa;text-align:center;margin-top:4px}
+@media(max-width:640px){.tap-hint{display:block}}
 </style>
 </head>
 <body>
@@ -95,11 +139,14 @@ h1{font-size:2.4rem;font-weight:600;letter-spacing:-1px;text-align:center}
       <div class="globe-outer">
         <canvas id="globe-canvas"></canvas>
         <div class="globe-hint">drag to rotate · hover for info</div>
+        <div class="tap-hint">tap a river or marker for info</div>
       </div>
     </div>
   </div>
 </div>
-<div id="tt"></div>
+<div id="tt">
+  <button id="tt-dismiss" onclick="dismissTT()">×</button>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
@@ -382,6 +429,11 @@ inp.addEventListener('keydown',e=>{
   else if(e.key==='Escape')acList.style.display='none';
 });
 document.addEventListener('click',e=>{if(!e.target.closest('.input-row'))acList.style.display='none';});
+document.addEventListener('touchstart',e=>{
+  if(tt.style.display!=='none'&&!e.target.closest('#tt')&&!e.target.closest('#globe-canvas')){
+    tt.style.display='none';
+  }
+},{passive:true});
 function pickAC(n){inp.value=n;acList.style.display='none';acSel=-1;}
 
 function submitGuess(){
@@ -472,6 +524,7 @@ function render(){
   }).join('');
 }
 
+function dismissTT(){tt.style.display='none';}
 // Globe
 let world=null,rotation=[0,20],dragging=false,lastMouse=null,spinReq=null,autoSpin=true,flyAnim=null;
 
@@ -526,7 +579,19 @@ canvas.addEventListener('touchmove',e=>{
   rotation[0]+=dx*.4;rotation[1]=Math.max(-90,Math.min(90,rotation[1]+dy*.4));
   lastMouse=[e.touches[0].clientX,e.touches[0].clientY];drawGlobe();e.preventDefault();
 },{passive:false});
-canvas.addEventListener('touchend',()=>{dragging=false;lastMouse=null;});
+canvas.addEventListener('touchend',e=>{
+  if(dragging&&lastMouse){
+    const dx=e.changedTouches[0].clientX-lastMouse[0];
+    const dy=e.changedTouches[0].clientY-lastMouse[1];
+    const dist=Math.hypot(dx,dy);
+    // If finger barely moved, treat as a tap -> show tooltip
+    if(dist<8){
+      const fakeEvt={clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY};
+      handleHover(fakeEvt,true);
+    }
+  }
+  dragging=false;lastMouse=null;
+});
 
 function makeProj(){
   return d3.geoOrthographic().scale(canvas.width*.48).translate([canvas.width/2,canvas.height/2]).rotate([rotation[0],-rotation[1]]).clipAngle(90);
@@ -559,7 +624,7 @@ function flyTo(center){
   flyAnim=requestAnimationFrame(step);
 }
 
-function handleHover(e){
+function handleHover(e,isTap){
   if(!world)return;
   const rect=canvas.getBoundingClientRect();
   const mx=(e.clientX-rect.left)*(canvas.width/rect.width);
@@ -600,12 +665,18 @@ function handleHover(e){
       <div class="tt-row"><span class="tt-k">Note</span><span class="tt-v">${r.note}</span></div>
       ${dLine}${aLine}`;
     tt.style.display='block';
-    const m=14,tw=245,th=tt.offsetHeight||140;
-    let tx=e.clientX+m,ty=e.clientY-10;
-    if(tx+tw>window.innerWidth-8)tx=e.clientX-tw-m;
-    if(ty+th>window.innerHeight-8)ty=window.innerHeight-th-8;
-    if(ty<8)ty=8;
-    tt.style.left=tx+'px';tt.style.top=ty+'px';
+    const isMobile=window.innerWidth<=640;
+    if(isMobile){
+      // Bottom sheet — just show it, CSS handles positioning
+      tt.style.left='';tt.style.top='';tt.style.right='';tt.style.bottom='';
+    }else{
+      const m=14,tw=245,th=tt.offsetHeight||140;
+      let tx=e.clientX+m,ty=e.clientY-10;
+      if(tx+tw>window.innerWidth-8)tx=e.clientX-tw-m;
+      if(ty+th>window.innerHeight-8)ty=window.innerHeight-th-8;
+      if(ty<8)ty=8;
+      tt.style.left=tx+'px';tt.style.top=ty+'px';
+    }
   }else{canvas.style.cursor='grab';tt.style.display='none';}
 }
 
